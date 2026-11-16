@@ -1428,14 +1428,18 @@
         /* ----- refraction: only where it is cheap and actually renders ----- */
         var ua = navigator.userAgent || '';
         var chromium = (!!window.chrome || /Chrome\/|Chromium\/|Edg\//.test(ua)) && !/Firefox\//.test(ua);
-        var mobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+        /* iPhone / iPad: every browser there is WebKit, which cannot run an
+           SVG filter on a backdrop. Android Chrome can — it gets the lens on
+           the smaller panels, in one pass. */
+        var ios = /iPhone|iPad|iPod/i.test(ua);
+        var android = /Android/i.test(ua);
         var cssOk = !!(window.CSS && CSS.supports && CSS.supports('backdrop-filter', 'url(#lg-lens)'));
         var conn = navigator.connection || {};
         var weak = (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) || (navigator.deviceMemory && navigator.deviceMemory < 4) || conn.saveData;
         var wide = mq('(hover: hover) and (pointer: fine)');
         var fxKilled = false;
-        var RIM_MAX_AREA = 9000000;  /* px² — safety cap for the map canvas */
-        var RGB_MAX_AREA = 700000;   /* above this the lens skips the colour split (one pass, not three) */
+        var RIM_MAX_AREA = android ? 420000 : 9000000;  /* px² — larger panels keep plain glass */
+        var RGB_MAX_AREA = android ? 0 : 700000;   /* above this the lens skips the colour split (one pass, not three) */
 
         /* The lens. For a panel of w × h with corner radius r, every pixel
            closer to the edge than the bevel width gets a vector pointing
@@ -1541,7 +1545,7 @@
         var fxTimer = null;
         function queueLenses(){ clearTimeout(fxTimer); fxTimer = setTimeout(buildLenses, 140); }
         function evalFx(){
-          var on = chromium && !mobileUA && cssOk && !weak && !fxKilled && wide.matches;
+          var on = chromium && !ios && cssOk && !weak && !fxKilled && (android || wide.matches);
           root.classList.toggle('lg-fx', !!on);
           buildLenses();
         }
@@ -1553,6 +1557,25 @@
           for (var q = 0; q < items.length; q++) lro.observe(items[q].rim);
         }
         if (document.fonts && document.fonts.ready && document.fonts.ready.then){ document.fonts.ready.then(queueLenses); }
+
+        /* Phones have no cursor, so the glare loop (and its frame guard)
+           never runs there. Sample a few scrolls instead: if frames take
+           longer than ~40ms on average with the lens on, drop the lens. */
+        if (android){
+          var probes = 0, probing = false;
+          document.addEventListener('scroll', function(){
+            if (probing || fxKilled || probes >= 4 || !root.classList.contains('lg-fx')) return;
+            probing = true; probes++;
+            var n = 0, first = 0, prev = 0;
+            (function tick(t){
+              if (!first){ first = t; }
+              prev = t;
+              if (++n < 36){ requestAnimationFrame(tick); return; }
+              probing = false;
+              if ((prev - first) / (n - 1) > 40){ fxKilled = true; evalFx(); }
+            })(performance.now());
+          }, { capture: true, passive: true });
+        }
 
         /* ----- glare ----- */
         if ('IntersectionObserver' in window){
