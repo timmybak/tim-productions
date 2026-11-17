@@ -186,7 +186,8 @@
       .addons{ margin-top:24px; display:grid; grid-template-columns:repeat(7,1fr); padding:8px 4px; }
       @media (max-width:1020px){ .addons{ grid-template-columns:repeat(4,1fr); } }
       @media (max-width:620px){ .addons{ grid-template-columns:repeat(2,1fr); } }
-      .addon{ text-align:center; padding:20px 10px 16px; border-right:1px dashed var(--dash); }
+      .addon{ text-align:center; padding:20px 10px 18px; border-right:1px dashed var(--dash); display:flex; flex-direction:column; align-items:center; }
+      .addon .ap{ margin-top:auto !important; padding-top:8px; }
       .addon:last-child{ border-right:none; }
       @media (max-width:620px){ .addon{ border-bottom:1px dashed var(--dash); } }
       .addon .ic{ width:42px; height:42px; margin:0 auto 10px; color:var(--gold); }
@@ -1050,7 +1051,7 @@
                 <h4>Rush Delivery</h4><p class="ap">$400</p>
               </div>
               <div class="addon">
-                <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 8v13a5 5 0 0010 0V8"/><path d="M20 8h-5M25 26v12M15 40h10"/><path d="M33 8v13a5 5 0 0010 0V8" transform="translate(-4 0) scale(.82) translate(8 4)"/></svg>
+                <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><g transform="rotate(12 13 37)"><path d="M8 11h10v8a5 5 0 01-10 0z"/><path d="M13 24v13M8.5 37h9"/></g><g transform="rotate(-12 35 37)"><path d="M30 11h10v8a5 5 0 01-10 0z"/><path d="M35 24v13M30.5 37h9"/></g><path d="M24 3v3M19.5 4.5l1.6 2.2M28.5 4.5l-1.6 2.2"/></svg>
                 <h4>Rehearsal Dinner Coverage</h4><p class="ap">$500</p>
               </div>
               <div class="addon">
